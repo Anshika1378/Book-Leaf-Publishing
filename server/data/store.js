@@ -385,8 +385,18 @@ export const store = {
   },
 
   getTicketsByAuthorId: (authorId) => {
+    const author = authors.find((a) => a.author_id === authorId || a.id === authorId);
+    const authorEmail = author?.email?.toLowerCase();
     return tickets
-      .filter((t) => t.authorId === authorId)
+      .filter((t) => {
+        const idMatch =
+          t.authorId === authorId ||
+          t.author_id === authorId ||
+          (t.authorId && authorId && t.authorId.toLowerCase() === authorId.toLowerCase());
+        const emailMatch =
+          authorEmail && t.authorEmail && t.authorEmail.toLowerCase() === authorEmail;
+        return idMatch || emailMatch;
+      })
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   },
 

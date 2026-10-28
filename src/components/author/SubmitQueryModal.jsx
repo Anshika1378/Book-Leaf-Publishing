@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import { X, Upload, FileText, AlertCircle, Loader2 } from 'lucide-react';
 
 export function SubmitQueryModal({ isOpen, onClose, books = [], preselectedBookId = '', onTicketCreated }) {
+  const { user } = useAuth();
   const [selectedBookId, setSelectedBookId] = useState(preselectedBookId || 'general');
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
@@ -43,6 +45,9 @@ export function SubmitQueryModal({ isOpen, onClose, books = [], preselectedBookI
         subject: subject.trim(),
         description: description.trim(),
         attachments,
+        authorId: user?.author_id || user?.id || 'AUTH001',
+        authorEmail: user?.email || 'priya.sharma@email.com',
+        authorName: user?.name || 'Priya Sharma',
       });
 
       onTicketCreated?.(res.ticket);

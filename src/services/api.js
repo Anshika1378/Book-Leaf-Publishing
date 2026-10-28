@@ -4,19 +4,21 @@ const API_BASE = '/api';
 
 function getCurrentUserFromToken() {
   const token = localStorage.getItem('bookleaf_token');
-  if (!token) return { role: null, id: null, name: 'User', email: '' };
+  if (!token) return { role: null, id: null, author_id: null, name: 'User', email: '' };
   try {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const payload = JSON.parse(window.atob(base64));
+    const padded = base64.padEnd(base64.length + (4 - (base64.length % 4)) % 4, '=');
+    const payload = JSON.parse(window.atob(padded));
     return {
       role: payload.role,
       id: payload.author_id || payload.id,
+      author_id: payload.author_id || payload.id,
       name: payload.name || (payload.role === 'admin' ? 'BookLeaf Ops Lead' : 'Author'),
       email: payload.email || '',
     };
   } catch {
-    return { role: null, id: null, name: 'User', email: '' };
+    return { role: null, id: null, author_id: null, name: 'User', email: '' };
   }
 }
 
@@ -104,7 +106,17 @@ export const api = {
 
       if (user.role === 'author') {
         visibleTickets = visibleTickets
-          .filter((t) => t.authorId === user.id)
+          .filter((t) => {
+            const authorId = user.author_id || user.id;
+            const idMatch =
+              (t.authorId && authorId && t.authorId.toLowerCase() === authorId.toLowerCase()) ||
+              (t.author_id && authorId && t.author_id.toLowerCase() === authorId.toLowerCase());
+            const emailMatch =
+              t.authorEmail && user.email && t.authorEmail.toLowerCase() === user.email.toLowerCase();
+            const nameMatch =
+              t.authorName && user.name && t.authorName.toLowerCase() === user.name.toLowerCase();
+            return idMatch || emailMatch || nameMatch;
+          })
           .map((t) => {
             const { internalNotes, ...safe } = t;
             return safe;
@@ -167,21 +179,28 @@ export const api = {
 
     create: async (ticketData) => {
       let createdTicket = null;
+      const currentUser = getCurrentUserFromToken();
+      const enrichedData = {
+        ...ticketData,
+        authorId: ticketData.authorId || currentUser.author_id || currentUser.id || 'AUTH001',
+        authorEmail: ticketData.authorEmail || currentUser.email || 'priya.sharma@email.com',
+        authorName: ticketData.authorName || currentUser.name || 'Priya Sharma',
+      };
+
       try {
         const res = await request('/tickets', {
           method: 'POST',
-          body: JSON.stringify(ticketData),
+          body: JSON.stringify(enrichedData),
         });
         createdTicket = res.ticket;
       } catch (err) {
         console.warn('Server create ticket failed, using client storage fallback:', err.message);
-        const user = getCurrentUserFromToken();
         const existingCount = ticketStorage.getLocalTickets()?.length || 7;
         createdTicket = {
           id: `TICK-${1000 + existingCount + 1}`,
-          authorId: user.id || 'AUTH001',
-          authorName: user.name || 'Author',
-          authorEmail: user.email || 'author@email.com',
+          authorId: enrichedData.authorId,
+          authorName: enrichedData.authorName,
+          authorEmail: enrichedData.authorEmail,
           bookId: ticketData.bookId && ticketData.bookId !== 'general' ? ticketData.bookId : null,
           bookTitle: ticketData.bookTitle || 'General / Account Level',
           category: ticketData.category || 'General Inquiry',
@@ -205,6 +224,14 @@ export const api = {
           attachments: ticketData.attachments || [],
         };
       }
+
+      // Ensure author metadata is always attached
+      createdTicket = {
+        ...createdTicket,
+        authorId: createdTicket.authorId || enrichedData.authorId,
+        authorEmail: createdTicket.authorEmail || enrichedData.authorEmail,
+        authorName: createdTicket.authorName || enrichedData.authorName,
+      };
 
       ticketStorage.addTicket(createdTicket);
 

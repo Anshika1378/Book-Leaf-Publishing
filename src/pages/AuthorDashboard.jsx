@@ -23,7 +23,13 @@ import {
 
 export function AuthorDashboard() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('books');
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem('bookleaf_author_active_tab') || 'tickets';
+  });
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    localStorage.setItem('bookleaf_author_active_tab', tab);
+  };
   const [books, setBooks] = useState([]);
   const [summary, setSummary] = useState(null);
   const [tickets, setTickets] = useState([]);
@@ -70,7 +76,10 @@ export function AuthorDashboard() {
       );
     },
     onNewTicket: (newTicket) => {
-      if (newTicket.authorId === (user?.author_id || user?.id)) {
+      const isOwner =
+        newTicket.authorId === (user?.author_id || user?.id) ||
+        (newTicket.authorEmail && user?.email && newTicket.authorEmail.toLowerCase() === user?.email?.toLowerCase());
+      if (isOwner) {
         setTickets((prev) => {
           if (prev.some((t) => t.id === newTicket.id)) return prev;
           return [newTicket, ...prev];
@@ -88,8 +97,9 @@ export function AuthorDashboard() {
         api.tickets.getAll(),
       ]);
 
-      setBooks(booksRes.books || []);
-      setSummary(summaryRes.metrics || null);
+      const fetchedTickets = ticketsRes?.tickets || [];
+      setBooks(booksRes?.books || []);
+      setSummary(summaryRes?.metrics || null);
       setTickets(fetchedTickets);
 
       if (fetchedTickets.length > 0) {
@@ -117,9 +127,12 @@ export function AuthorDashboard() {
   };
 
   const handleTicketCreated = (newTicket) => {
-    setTickets((prev) => [newTicket, ...prev]);
+    setTickets((prev) => {
+      const exists = prev.some((t) => t.id === newTicket.id);
+      return exists ? prev : [newTicket, ...prev];
+    });
     setSelectedTicketId(newTicket.id);
-    setActiveTab('tickets');
+    handleTabChange('tickets');
     setMobileShowThread(true);
   };
 
@@ -270,7 +283,7 @@ export function AuthorDashboard() {
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
               onClick={() => {
-                setActiveTab('books');
+                handleTabChange('books');
                 setMobileShowThread(false);
               }}
               style={{
@@ -292,7 +305,7 @@ export function AuthorDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab('tickets')}
+              onClick={() => handleTabChange('tickets')}
               style={{
                 display: 'flex',
                 alignItems: 'center',

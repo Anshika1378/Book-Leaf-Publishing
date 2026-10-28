@@ -120,6 +120,9 @@ export const ticketStorage = {
         ticketMap.set(lt.id, {
           ...serverTicket,
           ...lt,
+          authorId: lt.authorId || serverTicket.authorId || lt.author_id,
+          authorEmail: lt.authorEmail || serverTicket.authorEmail,
+          authorName: lt.authorName || serverTicket.authorName,
           status: lt.status || serverTicket.status,
           category: lt.category || serverTicket.category,
           priority: lt.priority || serverTicket.priority,
@@ -160,6 +163,9 @@ export const ticketStorage = {
         return {
           ...t,
           ...(updatedTicket || {}),
+          authorId: t.authorId || updatedTicket?.authorId || t.author_id,
+          authorEmail: t.authorEmail || updatedTicket?.authorEmail,
+          authorName: t.authorName || updatedTicket?.authorName,
           status: updatedTicket?.status || (response.senderRole === 'admin' && t.status === 'Open' ? 'In Progress' : t.status),
           responses: newResponses,
           updatedAt: new Date().toISOString(),
