@@ -375,25 +375,16 @@ export function AuthorDashboard() {
         {activeTab === 'tickets' && (
           <div>
             {tickets.length > 0 ? (
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: mobileShowThread ? '1fr' : 'repeat(auto-fit, minmax(320px, 1fr))',
-                  gap: '16px',
-                  alignItems: 'start',
-                }}
-              >
+              <div className={`master-detail-grid ${mobileShowThread ? 'show-detail' : ''}`}>
                 {/* Tickets Sidebar / List */}
                 <div
-                  className="glass-panel"
+                  className="glass-panel master-detail-list"
                   style={{
-                    display: mobileShowThread && window.innerWidth < 768 ? 'none' : 'flex',
                     backgroundColor: 'var(--bg-secondary)',
                     border: '1px solid var(--border-color)',
                     borderRadius: '12px',
                     padding: '14px',
                     maxHeight: '750px',
-                    flexDirection: 'column',
                   }}
                 >
                   {/* Status Filters */}
@@ -531,7 +522,7 @@ export function AuthorDashboard() {
                 </div>
 
                 {/* Selected Ticket Thread */}
-                <div style={{ minWidth: 0 }}>
+                <div className="master-detail-detail">
                   {selectedTicket ? (
                     <AuthorTicketThread
                       ticket={selectedTicket}

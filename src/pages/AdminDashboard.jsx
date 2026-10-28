@@ -383,27 +383,18 @@ export function AdminDashboard() {
           </div>
         </div>
 
-        {/* Master-Detail Split View (Responsive) */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: mobileShowDetail ? '1fr' : 'repeat(auto-fit, minmax(340px, 1fr))',
-            gap: '16px',
-            alignItems: 'start',
-          }}
-        >
+        {/* Master-Detail Split View (Responsive: Side-by-side on desktop, toggle on mobile) */}
+        <div className={`master-detail-grid ${mobileShowDetail ? 'show-detail' : ''}`}>
           {/* Left Column: Tickets Queue List */}
           <div
-            className="glass-panel"
+            className="glass-panel master-detail-list"
             style={{
-              display: mobileShowDetail && window.innerWidth < 860 ? 'none' : 'flex',
               padding: '14px',
               backgroundColor: 'var(--bg-secondary)',
               border: '1px solid var(--border-color)',
               borderRadius: '12px',
               maxHeight: '900px',
               overflowY: 'auto',
-              flexDirection: 'column',
               gap: '8px',
             }}
           >
@@ -522,7 +513,7 @@ export function AdminDashboard() {
           </div>
 
           {/* Right Column: Ticket Detail Drawer */}
-          <div style={{ minWidth: 0 }}>
+          <div className="master-detail-detail">
             {selectedTicket ? (
               <TicketDetailDrawer
                 ticket={selectedTicket}
