@@ -1,0 +1,79 @@
+{
+  "company": {
+    "name": "BookLeaf Publishing",
+    "presence": ["India", "United States"],
+    "packages": [
+      {
+        "name": "Standard Free",
+        "description": "Zero upfront cost publishing package including basic distribution, ISBN, and author dashboard access."
+      },
+      {
+        "name": "Bestseller Breakthrough",
+        "description": "Premium paid publishing package with dedicated marketing campaigns, enhanced cover design, and expanded global distribution add-ons."
+      }
+    ],
+    "facilities": {
+      "inHouse": "Delhi in-house printing facility and central warehouse",
+      "partners": ["Repro India", "Epitome Books"]
+    },
+    "services": [
+      "Cover design",
+      "Typesetting",
+      "ISBN assignment",
+      "Printing and quality control",
+      "Multi-channel distribution",
+      "Royalty accounting and payouts"
+    ]
+  },
+  "policies": {
+    "royalty": {
+      "split": "80/20 (80% net profit to Author, 20% to BookLeaf)",
+      "formula": "Net profit = MRP - printing cost - platform commission (Amazon/Flipkart) - shipping charges",
+      "schedule": "Calculated quarterly, disbursed within 45 days of quarter ending",
+      "threshold": "₹1,000 minimum payout threshold. Balances under ₹1,000 rollover automatically to next quarter.",
+      "paymentMethod": "Direct bank transfer to linked account in Author Dashboard",
+      "transparency": "Full line-by-line sales breakdown per platform available in author dashboard"
+    },
+    "isbn": {
+      "imprint": "Registered under BookLeaf Publishing publisher imprint. Independent imprint requires author to provide their own ISBN.",
+      "discrepancySLA": "High-priority issue. Escalated immediately to production team with guaranteed 48-hour resolution."
+    },
+    "printingAndQuality": {
+      "turnaround": "Standard turnaround is 5–7 business days from order confirmation.",
+      "partners": "In-house Delhi facility for standard orders; Repro India and Epitome Books for overflow and specialized formats.",
+      "defectPolicy": "Free reprint arranged upon verification. Author must submit photos of defects (misprints, binding defects, color inconsistency). Reprint SLA: 5–7 business days."
+    },
+    "distribution": {
+      "channels": ["Amazon India", "Flipkart", "Amazon US", "Amazon UK", "BookLeaf Store"],
+      "listingSLA": "7–10 business days after publication is complete.",
+      "stockSyncIssue": "'Currently Unavailable' status on marketplace listings is typically a stock sync lag. BookLeaf triggers a catalog re-sync within 24–48 hours."
+    },
+    "productionStages": [
+      "Manuscript Received",
+      "Editing (if opted)",
+      "Cover Design",
+      "Typesetting",
+      "Proofreading",
+      "ISBN Assignment",
+      "Printing",
+      "Distribution Setup",
+      "Published & Live"
+    ],
+    "productionBottlenecks": "Most delays occur during Cover Design (waiting for author feedback/approval) and Proofreading (revision rounds)."
+  },
+  "toneGuidelines": [
+    "Empathetic and professional: Authors are partners, not customers to be managed.",
+    "Acknowledge the author's concern upfront before providing technical explanations.",
+    "Be specific: Reference actual book titles, dates, royalty amounts, and production stages.",
+    "Own BookLeaf mistakes directly (e.g. payout delays or print defects) with zero corporate deflection.",
+    "Provide actionable next steps and definite timelines (e.g., 'within 48 hours', '5-7 business days')."
+  ],
+  "categories": [
+    "Royalty & Payments",
+    "ISBN & Metadata Issues",
+    "Printing & Quality",
+    "Distribution & Availability",
+    "Book Status & Production Updates",
+    "General Inquiry"
+  ]
+}
