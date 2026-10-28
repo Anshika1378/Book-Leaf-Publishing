@@ -148,7 +148,7 @@ We default to **`gpt-4o-mini`**:
 
 ### Step 1: Clone and Install
 ```bash
-git clone <repository-url>
+git clone <(https://github.com/Anshika1378/Book-Leaf-Publishing.git)>
 cd bookleaf-portal
 npm install
 ```
