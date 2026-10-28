@@ -90,11 +90,15 @@ export function AuthorDashboard() {
 
       setBooks(booksRes.books || []);
       setSummary(summaryRes.metrics || null);
-      const fetchedTickets = ticketsRes.tickets || [];
       setTickets(fetchedTickets);
 
-      if (fetchedTickets.length > 0 && !selectedTicketId) {
-        setSelectedTicketId(fetchedTickets[0].id);
+      if (fetchedTickets.length > 0) {
+        setSelectedTicketId((prev) => {
+          const stillExists = fetchedTickets.some((t) => t.id === prev);
+          return stillExists && prev ? prev : fetchedTickets[0].id;
+        });
+      } else {
+        setSelectedTicketId(null);
       }
     } catch (err) {
       console.error('Failed to load author data:', err);

@@ -137,8 +137,13 @@ export function AdminDashboard() {
       const res = await api.tickets.getAll();
       const all = res.tickets || [];
       setTickets(all);
-      if (all.length > 0 && !selectedTicketId) {
-        setSelectedTicketId(all[0].id);
+      if (all.length > 0) {
+        setSelectedTicketId((prev) => {
+          const stillExists = all.some((t) => t.id === prev);
+          return stillExists && prev ? prev : all[0].id;
+        });
+      } else {
+        setSelectedTicketId(null);
       }
       await loadStats();
     } catch (err) {

@@ -21,6 +21,15 @@ router.get('/stats/overview', authenticateToken, requireAdmin, (req, res) => {
   return res.json({ stats: store.getStats() });
 });
 
+// POST /api/tickets/sync (Sync client-persisted tickets into server store)
+router.post('/sync', authenticateToken, (req, res) => {
+  const { tickets: clientTickets } = req.body || {};
+  if (Array.isArray(clientTickets)) {
+    store.syncClientTickets(clientTickets);
+  }
+  return res.json({ success: true, count: store.getAllTickets().length });
+});
+
 // GET /api/tickets (List tickets)
 router.get('/', authenticateToken, (req, res) => {
   const { status, category, priority, search } = req.query;

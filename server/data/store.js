@@ -262,7 +262,33 @@ const initialTickets = [
   },
 ];
 
-let tickets = [...initialTickets];
+const DB_FILE = process.env.VERCEL
+  ? path.join('/tmp', 'bookleaf_tickets_db.json')
+  : path.join(__dirname, 'tickets_db.json');
+
+function loadPersistedTickets() {
+  try {
+    if (fs.existsSync(DB_FILE)) {
+      const data = JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
+      if (Array.isArray(data) && data.length > 0) {
+        return data;
+      }
+    }
+  } catch (err) {
+    // Ignore and fallback to initial sample tickets
+  }
+  return [...initialTickets];
+}
+
+function savePersistedTickets(currentTickets) {
+  try {
+    fs.writeFileSync(DB_FILE, JSON.stringify(currentTickets, null, 2), 'utf-8');
+  } catch (err) {
+    // Silently continue if read-only or restricted
+  }
+}
+
+let tickets = loadPersistedTickets();
 
 export const store = {
   // Authors
@@ -399,6 +425,7 @@ export const store = {
     };
 
     tickets.unshift(newTicket);
+    savePersistedTickets(tickets);
     return newTicket;
   },
 
@@ -411,6 +438,7 @@ export const store = {
       ...updates,
       updatedAt: new Date().toISOString(),
     };
+    savePersistedTickets(tickets);
     return tickets[index];
   },
 
@@ -418,6 +446,7 @@ export const store = {
     const index = tickets.findIndex((t) => t.id === ticketId);
     if (index === -1) return false;
     tickets.splice(index, 1);
+    savePersistedTickets(tickets);
     return true;
   },
 
@@ -442,6 +471,7 @@ export const store = {
       ticket.status = 'In Progress';
     }
 
+    savePersistedTickets(tickets);
     return { ticket, response };
   },
 
@@ -459,7 +489,47 @@ export const store = {
 
     ticket.internalNotes.push(note);
     ticket.updatedAt = new Date().toISOString();
+    savePersistedTickets(tickets);
     return { ticket, note };
+  },
+
+  syncClientTickets: (clientTickets) => {
+    if (!Array.isArray(clientTickets)) return;
+    clientTickets.forEach((ct) => {
+      if (!ct || !ct.id) return;
+      const idx = tickets.findIndex((t) => t.id === ct.id);
+      if (idx === -1) {
+        tickets.unshift(ct);
+      } else {
+        const existing = tickets[idx];
+        const respMap = new Map();
+        (existing.responses || []).forEach((r) => respMap.set(r.id, r));
+        (ct.responses || []).forEach((r) => respMap.set(r.id, r));
+        const mergedResp = Array.from(respMap.values()).sort(
+          (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+        );
+
+        const noteMap = new Map();
+        (existing.internalNotes || []).forEach((n) => noteMap.set(n.id, n));
+        (ct.internalNotes || []).forEach((n) => noteMap.set(n.id, n));
+        const mergedNotes = Array.from(noteMap.values()).sort(
+          (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+        );
+
+        tickets[idx] = {
+          ...existing,
+          ...ct,
+          status: ct.status || existing.status,
+          category: ct.category || existing.category,
+          priority: ct.priority || existing.priority,
+          assignedTo: ct.assignedTo !== undefined ? ct.assignedTo : existing.assignedTo,
+          responses: mergedResp,
+          internalNotes: mergedNotes,
+          updatedAt: ct.updatedAt || new Date().toISOString(),
+        };
+      }
+    });
+    savePersistedTickets(tickets);
   },
 
   getStats: () => {
@@ -507,5 +577,6 @@ export const store = {
 
   resetStore: () => {
     tickets = [...initialTickets];
+    savePersistedTickets(tickets);
   },
 };
